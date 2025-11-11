@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Identity.Infrastructure.Persistance
 {
-    public class IdentityDbContext : DbContext
+    public class IdentityServiceDbContext : DbContext
     {
-        public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
-            : base(options) { }
+        public IdentityServiceDbContext(DbContextOptions<IdentityServiceDbContext> options)
+           : base(options) { }
 
         public DbSet<User> Users => Set<User>();
     }

@@ -1,6 +1,6 @@
 ﻿using Identity.Application.Commands;
 using Identity.Domain.Entities;
-using Identity.Infrastructure.Repositories;
+using Identity.Shared.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

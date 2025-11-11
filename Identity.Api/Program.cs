@@ -1,15 +1,18 @@
 using FluentValidation;
 using Identity.Application.Commands;
+using Identity.Application.Common;
 using Identity.Application.Validators;
 using Identity.Domain.Entities;
+using Identity.Shared.Repositories;
+using Identity.Infrastructure.Messaging;
 using Identity.Infrastructure.Persistance;
-using Identity.Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Identity.Infrastructure.Repositories;
 
 
 
@@ -20,11 +23,12 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-builder.Services.AddDbContext<IdentityDbContext>(options =>
+builder.Services.AddDbContext<IdentityServiceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 // Add services to the container.
 
+builder.Services.AddScoped<IEventPublisher, InMemoryEventPublisher>();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

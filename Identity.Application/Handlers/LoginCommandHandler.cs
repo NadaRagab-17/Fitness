@@ -1,7 +1,7 @@
 ﻿using Identity.Application.Commands;
 using Identity.Application.DTOs;
 using Identity.Domain.Entities;
-using Identity.Infrastructure.Repositories;
+using Identity.Shared.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
