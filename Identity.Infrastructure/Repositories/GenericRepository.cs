@@ -1,4 +1,6 @@
 ﻿using Identity.Infrastructure.Persistance;
+using Identity.Shared.Repositories;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,10 +13,10 @@ namespace Identity.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly IdentityDbContext _context;
+        private readonly IdentityServiceDbContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(IdentityDbContext context)
+        public GenericRepository(IdentityServiceDbContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();

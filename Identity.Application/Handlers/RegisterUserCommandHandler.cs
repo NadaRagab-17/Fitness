@@ -3,9 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Identity.Application.Commands;
 using Identity.Domain.Entities;
-using Identity.Infrastructure.Repositories;
+using Identity.Shared.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Identity.Application.Common;
+using Identity.Domain.Events;
 
 namespace Identity.Application.Handlers
 {
@@ -13,13 +15,16 @@ namespace Identity.Application.Handlers
     {
         private readonly IGenericRepository<User> _userRepo;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IEventPublisher _eventPublisher;
 
         public RegisterUserCommandHandler(
             IGenericRepository<User> userRepo,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IEventPublisher eventPublisher)
         {
             _userRepo = userRepo;
             _passwordHasher = passwordHasher;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -41,6 +46,15 @@ namespace Identity.Application.Handlers
 
             await _userRepo.AddAsync(user);
             await _userRepo.SaveChangesAsync();
+
+            await _userRepo.SaveChangesAsync();
+
+            await _eventPublisher.PublishAsync(new UserRegisteredEvent
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = $"{user.FirstName} {user.LastName}"
+            });
 
             return user.Id;
         }

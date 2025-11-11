@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Identity.Infrastructure.Migrations
 {
-    [DbContext(typeof(IdentityDbContext))]
+    [DbContext(typeof(IdentityServiceDbContext))]
     [Migration("20251109011857_AddOtpToUsers")]
     partial class AddOtpToUsers
     {
