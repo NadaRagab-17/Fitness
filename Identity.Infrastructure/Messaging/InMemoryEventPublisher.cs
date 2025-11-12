@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cqrs.Events;
-using Identity.Domain.Events;
+using Identity.Shared.Events;
 using Identity.Application.Common;
 using Microsoft.Extensions.Logging;
 

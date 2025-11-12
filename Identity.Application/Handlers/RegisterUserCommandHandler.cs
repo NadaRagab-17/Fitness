@@ -7,7 +7,7 @@ using Identity.Shared.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Identity.Application.Common;
-using Identity.Domain.Events;
+using Identity.Shared.Events;
 
 namespace Identity.Application.Handlers
 {
