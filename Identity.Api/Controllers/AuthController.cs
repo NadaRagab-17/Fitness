@@ -54,5 +54,15 @@ namespace Identity.Api.Controllers
         }
 
 
+        [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // stateless token,, logout logic (e.g., token invalidation) can be implemented here if needed
+
+            return Ok(new { Message = "User logged out successfully." });
+        }
+
+
     }
 }
