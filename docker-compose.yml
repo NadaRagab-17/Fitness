@@ -1,0 +1,101 @@
+version: "3.8"
+services:
+  # SQL Server for Identity
+  identity-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: identity-db
+    environment:
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - ACCEPT_EULA=Y
+    ports:
+      - "14331:1433"
+    volumes:
+      - identity_db_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q 'SELECT 1' || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # SQL Server for UserProfile
+  userprofile-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: userprofile-db
+    environment:
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - ACCEPT_EULA=Y
+    ports:
+      - "14332:1433"
+    volumes:
+      - userprofile_db_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q 'SELECT 1' || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      retries: 10
+
+  # Identity API
+  identity:
+    build:
+      context: .
+      dockerfile: Identity.Api/Dockerfile
+    container_name: identity
+    depends_on:
+      identity-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Server=identity-db,1433;Database=Fitness_IdentityDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+      - JwtSettings__Key=mysuperlongsecretkeythatneedstobe32charsorlonger!!
+      - JwtSettings__Issuer=Fitness.Identity
+      - JwtSettings__Audience=Fitness.Client
+      - RABBITMQ__HOST=rabbitmq
+      - RABBITMQ__USERNAME=guest
+      - RABBITMQ__PASSWORD=guest
+    ports:
+      - "7049:80" 
+    restart: unless-stopped
+
+  # UserProfile API
+  userprofile:
+    build:
+      context: .
+      dockerfile: UserProfile/Dockerfile
+    container_name: userprofile
+    depends_on:
+      userprofile-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Server=userprofile-db,1433;Database=Fitness_UserProfileDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+      - RABBITMQ__HOST=rabbitmq
+      - RABBITMQ__USERNAME=guest
+      - RABBITMQ__PASSWORD=guest
+    ports:
+      - "7050:80"
+    restart: unless-stopped
+
+volumes:
+  identity_db_data:
+  userprofile_db_data:

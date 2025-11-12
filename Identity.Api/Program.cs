@@ -118,4 +118,33 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<IdentityServiceDbContext>();
+        var retries = 10;
+        for (int i = 0; i < retries; i++)
+        {
+            try
+            {
+                db.Database.Migrate();
+                logger.LogInformation("Database migration applied.");
+                break;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Database not ready yet - retrying in 5s ({attempt}/{retries})", i + 1, retries);
+                Thread.Sleep(5000);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+
+
 app.Run();
